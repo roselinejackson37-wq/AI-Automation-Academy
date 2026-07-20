@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each document ID is a lowercased student email. A student can only
+    // read their own enrollment record — never anyone else's, and never
+    // the whole collection.
+    match /students/{email} {
+      allow read: if request.auth != null
+                   && request.auth.token.email.lower() == email;
+      allow write: if false; // Written only from the Firebase console or a
+                              // trusted server (e.g. a Cloud Function
+                              // triggered by a Selar webhook) — never from
+                              // the app itself.
+    }
+  }
+}
